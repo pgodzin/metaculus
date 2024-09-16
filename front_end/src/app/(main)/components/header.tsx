@@ -10,6 +10,7 @@ import NavLink from "@/components/nav_link";
 import ThemeToggle from "@/components/theme_toggle";
 
 import MobileMenu from "./mobile_menu";
+import GlobalSearch from "./global_search";
 import LanguageMenu from "@/components/language_menu";
 
 const LinkMenuItem: FC<{ href: string; label: string }> = ({ href, label }) => {
@@ -50,6 +51,10 @@ const Header: FC = () => {
         </h1>
       </Link>
 
+      {/* Global Search */}
+      <div className="hidden self-center xl:ml-4 xl:flex xl:items-center">
+        <GlobalSearch />
+      </div>
       {/*Common items for desktop and mobile*/}
       <ul className="flex flex-auto list-none items-stretch justify-end p-0 text-sm font-medium">
         {LINKS.map((link) => (
