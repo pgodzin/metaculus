@@ -11,6 +11,7 @@ interface GlobalSearchProps {
   inputRef?: RefObject<HTMLInputElement>;
   onSubmit?: () => void;
   className?: string;
+  isMobile?: boolean; // New prop to indicate if it's the mobile version
 }
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({
@@ -18,6 +19,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   inputRef,
   onSubmit,
   className,
+  isMobile = false, // Default to false
 }) => {
   const t = useTranslations();
   const router = useRouter();
@@ -31,6 +33,8 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   }, [searchParams]);
 
   useEffect(() => {
+    if (isMobile) return; // Skip this effect for mobile version
+
     const checkVisibility = () => {
       const isHomeSearchVisible =
         document.body.getAttribute("data-home-search-visible") === "true";
@@ -46,7 +50,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
   const handleSearchSubmit = useCallback(
     (query: string) => {
@@ -58,9 +62,15 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     [router, onSubmit]
   );
 
+  const visibilityClass = isMobile
+    ? "flex xl:hidden" // Show on mobile, hide on xl screens
+    : isHidden
+      ? "hidden"
+      : "hidden xl:flex"; // Desktop behavior
+
   return (
     <div
-      className={`hidden self-center xl:ml-4 xl:items-center ${isHidden ? "xl:hidden" : "xl:flex"} ${className}`}
+      className={`self-center xl:ml-4 xl:items-center ${visibilityClass} ${className}`}
     >
       <SearchInput
         value={searchQuery}

@@ -168,6 +168,7 @@ const MobileMenu: FC = () => {
           <GlobalSearch
             inputRef={searchInputRef}
             onSubmit={handleSearchSubmit}
+            isMobile={true} // Add this prop
           />
         </div>
       )}
