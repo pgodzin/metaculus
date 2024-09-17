@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, RefObject, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import SearchInput from "@/components/search_input";
 import { POST_TEXT_SEARCH_FILTER } from "@/constants/posts_feed";
@@ -11,7 +11,7 @@ interface GlobalSearchProps {
   inputRef?: RefObject<HTMLInputElement>;
   onSubmit?: () => void;
   className?: string;
-  isMobile?: boolean; // New prop to indicate if it's the mobile version
+  isMobile?: boolean;
 }
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({
@@ -19,21 +19,14 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   inputRef,
   onSubmit,
   className,
-  isMobile = false, // Default to false
+  isMobile = false,
 }) => {
   const t = useTranslations();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
-    const urlSearchQuery = searchParams.get("search");
-    setSearchQuery(urlSearchQuery || "");
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (isMobile) return; // Skip this effect for mobile version
+    if (isMobile) return;
 
     const checkVisibility = () => {
       const isExistingSearchVisible =
@@ -63,19 +56,18 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   );
 
   const visibilityClass = isMobile
-    ? "flex xl:hidden" // Show on mobile, hide on xl screens
+    ? "flex xl:hidden"
     : isHidden
       ? "hidden"
-      : "hidden xl:flex"; // Desktop behavior
+      : "hidden xl:flex";
 
   return (
     <div
       className={`self-center xl:ml-4 xl:items-center ${visibilityClass} ${className}`}
     >
       <SearchInput
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.target.value)}
-        onErase={() => setSearchQuery("")}
+        onChange={() => {}} // This is now handled internally in SearchInput
+        onErase={() => {}} // This is now handled internally in SearchInput
         onSubmit={handleSearchSubmit}
         placeholder={t("questionSearchPlaceholder")}
         size="base"
