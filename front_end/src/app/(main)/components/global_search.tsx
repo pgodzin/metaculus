@@ -36,9 +36,9 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     if (isMobile) return; // Skip this effect for mobile version
 
     const checkVisibility = () => {
-      const isHomeSearchVisible =
-        document.body.getAttribute("data-home-search-visible") === "true";
-      setIsHidden(isHomeSearchVisible);
+      const isExistingSearchVisible =
+        document.body.getAttribute("data-existing-search-visible") === "true";
+      setIsHidden(isExistingSearchVisible);
     };
 
     checkVisibility();
@@ -46,7 +46,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
     const observer = new MutationObserver(checkVisibility);
     observer.observe(document.body, {
       attributes: true,
-      attributeFilter: ["data-home-search-visible"],
+      attributeFilter: ["data-existing-search-visible"],
     });
 
     return () => observer.disconnect();

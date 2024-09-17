@@ -28,7 +28,7 @@ const HomeSearch: FC<Props> = () => {
       onChange={(event) => setSearchQuery(event.target.value)}
       onErase={() => setSearchQuery("")}
       onSubmit={handleSearchSubmit}
-      placeholder={t("forecastsSearchPlaceholder")}
+      placeholder={t("questionSearchPlaceholder")}
       size="lg"
       className="md:max-w-xl"
     />

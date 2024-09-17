@@ -27,7 +27,9 @@ export default async function Questions({
       <div className="gap-3 p-0 sm:flex sm:flex-row sm:gap-4">
         <QuestionTopics topics={topics} />
         <div className="min-h-[calc(100vh-300px)] grow overflow-x-hidden p-2 pt-2.5 no-scrollbar sm:p-0 sm:pt-5">
-          <FeedFilters />
+          <div id="existing-search">
+            <FeedFilters />
+          </div>
           <Suspense
             key={JSON.stringify(searchParams)}
             fallback={
