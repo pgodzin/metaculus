@@ -83,7 +83,9 @@ export default async function Home() {
               {t("homeDescription")}
             </p>
             <div className="mb-4 mt-8 inline-flex w-full flex-col items-center justify-center gap-4 md:mt-12">
-              <HomeSearch />
+              <div className="w-full md:max-w-xl" id="home-search">
+                <HomeSearch />
+              </div>
               <div className="line-clamp-3 max-w-2xl text-center md:line-clamp-2">
                 <TopicLink
                   text="2024 US Election Hub"

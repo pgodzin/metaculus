@@ -52,9 +52,7 @@ const Header: FC = () => {
       </Link>
 
       {/* Global Search */}
-      <div className="hidden self-center xl:ml-4 xl:flex xl:items-center">
-        <GlobalSearch />
-      </div>
+      <GlobalSearch />
       {/*Common items for desktop and mobile*/}
       <ul className="flex flex-auto list-none items-stretch justify-end p-0 text-sm font-medium">
         {LINKS.map((link) => (
