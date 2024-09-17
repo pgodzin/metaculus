@@ -19,7 +19,6 @@ import {
   POST_ORDER_BY_FILTER,
   POST_TEXT_SEARCH_FILTER,
 } from "@/constants/posts_feed";
-import useSearchInputState from "@/hooks/use_search_input_state";
 import useSearchParams from "@/hooks/use_search_params";
 import { QuestionOrder } from "@/types/question";
 
@@ -42,7 +41,7 @@ type Props = {
       withNavigation?: boolean
     ) => void
   ) => void;
-  ipnutConfig?: { mode: "client" | "server"; debounceTime?: number };
+  inputConfig?: { mode: "client" | "server"; debounceTime?: number };
 };
 
 const PostsFilters: FC<Props> = ({
@@ -51,7 +50,7 @@ const PostsFilters: FC<Props> = ({
   mainSortOptions,
   sortOptions: dropdownSortOptions,
   onOrderChange,
-  ipnutConfig,
+  inputConfig,
 }) => {
   const t = useTranslations();
   const {
@@ -63,14 +62,6 @@ const PostsFilters: FC<Props> = ({
     navigateToSearchParams,
   } = useSearchParams();
   defaultOrder = defaultOrder ?? QuestionOrder.ActivityDesc;
-
-  const [search, setSearch] = useSearchInputState(
-    POST_TEXT_SEARCH_FILTER,
-    ipnutConfig
-  );
-  const eraseSearch = () => {
-    setSearch("");
-  };
 
   const order = (params.get(POST_ORDER_BY_FILTER) ??
     defaultOrder) as QuestionOrder;
@@ -88,6 +79,7 @@ const PostsFilters: FC<Props> = ({
 
     return [filters, activeFilters];
   }, [filters]);
+
   const handleOrderChange = (order: QuestionOrder) => {
     const withNavigation = false;
 
@@ -128,6 +120,7 @@ const PostsFilters: FC<Props> = ({
 
     setParam(filterId, optionValue);
   };
+
   const clearPopupFilters = (withNavigation = true) => {
     const filtersToDelete = popoverFilters.reduce<string[]>(
       (filterIds, filter) => {
@@ -149,17 +142,22 @@ const PostsFilters: FC<Props> = ({
     );
     deleteParams(filtersToDelete, withNavigation);
   };
+
   const removeFilter = (filterId: string, filterValue: string) => {
     deleteParam(filterId, true, filterValue);
+  };
+
+  const handleSearchSubmit = (query: string) => {
+    setParam(POST_TEXT_SEARCH_FILTER, query, true);
   };
 
   return (
     <div>
       <div className="block">
         <SearchInput
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onErase={eraseSearch}
+          onSubmit={handleSearchSubmit}
+          onChange={() => {}} // This is now handled internally in SearchInput
+          onErase={() => {}} // This is now handled internally in SearchInput
           placeholder={t("questionSearchPlaceholder")}
         />
         <div className="mx-0 my-3 flex flex-wrap items-center justify-between gap-2">
