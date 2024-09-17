@@ -23,18 +23,27 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
 }) => {
   const t = useTranslations();
   const router = useRouter();
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState(true); // Start hidden
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) {
+      setIsHidden(false);
+      setIsLoading(false);
+      return;
+    }
 
     const checkVisibility = () => {
       const isExistingSearchVisible =
         document.body.getAttribute("data-existing-search-visible") === "true";
       setIsHidden(isExistingSearchVisible);
+      setIsLoading(false); // Set loading to false after checking visibility
     };
 
-    checkVisibility();
+    // Delay the initial check to allow for DOM rendering
+    const initialCheckTimeout = setTimeout(() => {
+      checkVisibility();
+    }, 100); // Adjust this delay as needed
 
     const observer = new MutationObserver(checkVisibility);
     observer.observe(document.body, {
@@ -42,7 +51,10 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
       attributeFilter: ["data-existing-search-visible"],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(initialCheckTimeout);
+    };
   }, [isMobile]);
 
   const handleSearchSubmit = useCallback(
@@ -57,7 +69,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
 
   const visibilityClass = isMobile
     ? "flex xl:hidden"
-    : isHidden
+    : isHidden || isLoading
       ? "hidden"
       : "hidden xl:flex";
 
