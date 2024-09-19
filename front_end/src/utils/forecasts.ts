@@ -4,10 +4,11 @@ import * as math from "mathjs";
 
 import { MultiSliderValue } from "@/components/sliders/multi_slider";
 import {
-  MultipleChoiceForecast,
-  NumericForecast,
+  AggregateForecast,
+  Aggregations,
   QuestionType,
 } from "@/types/question";
+import { convertMinifiedToOriginal, MinifiedResponse } from "@/utils/datatypes";
 import { cdfFromSliders, cdfToPmf } from "@/utils/math";
 import { abbreviatedNumber } from "@/utils/number_formatters";
 
@@ -130,4 +131,19 @@ export function getNumericForecastDataset(
     cdf: cdf,
     pmf: cdfToPmf(cdf),
   };
+}
+
+export function deserializeMinifiedAggregations(aggregations: Aggregations) {
+  Object.keys(aggregations).forEach((key) => {
+    const aggregation = aggregations[key as keyof Aggregations];
+
+    // If the aggregation exists, iterate over its history
+    if (aggregation?.history) {
+      aggregation.history = convertMinifiedToOriginal(
+        aggregation.history as unknown as MinifiedResponse<AggregateForecast>
+      );
+    }
+  });
+
+  return aggregations;
 }

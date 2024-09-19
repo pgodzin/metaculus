@@ -57,7 +57,6 @@ export type ExtendedQuartiles = Quartiles & {
 };
 
 export type Forecast = {
-  question_id: number;
   start_time: number;
   end_time: number | null;
   forecast_values: number[];
@@ -185,13 +184,11 @@ export type Question = {
 
 export type QuestionWithNumericForecasts = Question & {
   type: QuestionType.Numeric | QuestionType.Date | QuestionType.Binary;
-  forecasts: NumericForecast;
   open_lower_bound?: boolean;
   open_upper_bound?: boolean;
 };
 export type QuestionWithMultipleChoiceForecasts = Question & {
   type: QuestionType.MultipleChoice;
-  forecasts: MultipleChoiceForecast;
 };
 
 export type QuestionWithForecasts =

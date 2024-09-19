@@ -1,10 +1,14 @@
 import { PaginatedPayload, PaginationParams } from "@/types/fetch";
 import { NewsArticle } from "@/types/news";
 import { Post, PostSubscription, PostWithForecasts } from "@/types/post";
+import { AggregateForecast } from "@/types/question";
 import { Require } from "@/types/utils";
 import { VoteDirection, VoteResponse } from "@/types/votes";
+import { MinifiedResponse } from "@/utils/datatypes";
 import { get, post, put } from "@/utils/fetch";
+import { deserializeMinifiedAggregations } from "@/utils/forecasts";
 import { encodeQueryParams } from "@/utils/navigation";
+import { deserializePost } from "@/utils/posts";
 
 export type PostsParams = PaginationParams & {
   topic?: string;
@@ -39,9 +43,11 @@ export type ApprovePostParams = {
 
 class PostsApi {
   static async getPost(id: number): Promise<PostWithForecasts> {
-    return await get<PostWithForecasts>(
+    const post = await get<PostWithForecasts>(
       `/posts/${id}/${encodeQueryParams({ with_cp: true })}`
     );
+
+    return deserializePost(post);
   }
 
   static async removePostFromProject(postId: number, projectId: number) {
