@@ -1,12 +1,9 @@
 import { PaginatedPayload, PaginationParams } from "@/types/fetch";
 import { NewsArticle } from "@/types/news";
 import { Post, PostSubscription, PostWithForecasts } from "@/types/post";
-import { AggregateForecast } from "@/types/question";
 import { Require } from "@/types/utils";
 import { VoteDirection, VoteResponse } from "@/types/votes";
-import { MinifiedResponse } from "@/utils/datatypes";
 import { get, post, put } from "@/utils/fetch";
-import { deserializeMinifiedAggregations } from "@/utils/forecasts";
 import { encodeQueryParams } from "@/utils/navigation";
 import { deserializePost } from "@/utils/posts";
 
@@ -64,9 +61,12 @@ class PostsApi {
       with_cp: true,
     });
 
-    return await get<PaginatedPayload<PostWithForecasts>>(
+    const posts = await get<PaginatedPayload<PostWithForecasts>>(
       `/posts${queryParams}`
     );
+    posts.results = posts.results.map(deserializePost);
+
+    return posts;
   }
 
   static async getPosts(
