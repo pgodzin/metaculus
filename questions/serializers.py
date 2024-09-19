@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime, timezone as dt_timezone
 
 import django
@@ -237,6 +238,79 @@ class MyForecastSerializer(serializers.ModelSerializer):
             return percent_point_function(forecast.continuous_cdf, [75])
 
 
+def get_aggregate_forecasts_columns():
+    return (
+        "start_time",
+        "end_time",
+        "forecast_values",
+        "interval_lower_bounds",
+        "centers",
+        "interval_upper_bounds",
+        "means",
+    )
+
+
+def serialize_aggregate_forecasts(
+    forecast: AggregateForecast, include_forecast_values=True
+):
+    # TODO: probably exclude other values from db SELECT
+    start_time = forecast.start_time.timestamp()
+    end_time = forecast.start_time.timestamp()
+    forecast_values = forecast.forecast_values if include_forecast_values else None
+    interval_lower_bounds = (
+        forecast.interval_lower_bounds[1:]
+        if (len(forecast.forecast_values) == 2) and forecast.interval_lower_bounds
+        else forecast.interval_lower_bounds
+    )
+    centers = (
+        forecast.centers[1:]
+        if (len(forecast.forecast_values) == 2) and forecast.centers
+        else forecast.centers
+    )
+    interval_upper_bounds = (
+        forecast.interval_upper_bounds[1:]
+        if (len(forecast.forecast_values) == 2) and forecast.interval_upper_bounds
+        else forecast.interval_upper_bounds
+    )
+    means = (
+        forecast.means[1:]
+        if (len(forecast.forecast_values) == 2) and forecast.means
+        else forecast.means
+    )
+
+    # Building a small map to respect a strict fields ordering
+    data = {
+        "start_time": start_time,
+        "end_time": end_time,
+        "forecast_values": forecast_values,
+        "interval_lower_bounds": interval_lower_bounds,
+        "centers": centers,
+        "interval_upper_bounds": interval_upper_bounds,
+        "means": means,
+    }
+
+    return [data.get(key) for key in get_aggregate_forecasts_columns()]
+
+
+def serialize_aggregate_forecasts_many(
+    forecasts: Iterable[AggregateForecast], include_forecast_values=True
+):
+    """
+    To optimize the amount of data passed to the frontend,
+    the most efficient way of serialization will be list of lists
+    """
+
+    return {
+        "columns": get_aggregate_forecasts_columns(),
+        "rows": [
+            serialize_aggregate_forecasts(
+                f, include_forecast_values=include_forecast_values
+            )
+            for f in forecasts
+        ],
+    }
+
+
 class AggregateForecastSerializer(serializers.ModelSerializer):
     start_time = serializers.SerializerMethodField()
     end_time = serializers.SerializerMethodField()
@@ -393,11 +467,23 @@ def serialize_question(
     serialized_data = QuestionSerializer(question).data
     serialized_data["post_id"] = post.id if post else question.get_post().id
     serialized_data["aggregations"] = {
-        "recency_weighted": {"history": [], "latest": None, "score_data": dict()},
-        "unweighted": {"history": [], "latest": None, "score_data": dict()},
-        "single_aggregation": {"history": [], "latest": None, "score_data": dict()},
+        "recency_weighted": {
+            "history": serialize_aggregate_forecasts_many([]),
+            "latest": None,
+            "score_data": dict(),
+        },
+        "unweighted": {
+            "history": serialize_aggregate_forecasts_many([]),
+            "latest": None,
+            "score_data": dict(),
+        },
+        "single_aggregation": {
+            "history": serialize_aggregate_forecasts_many([]),
+            "latest": None,
+            "score_data": dict(),
+        },
         "metaculus_prediction": {
-            "history": [],
+            "history": serialize_aggregate_forecasts_many([]),
             "latest": None,
             "score_data": dict(),
         },
@@ -439,11 +525,9 @@ def serialize_question(
 
         for method, forecasts in aggregate_forecasts_by_method.items():
             serialized_data["aggregations"][method]["history"] = (
-                AggregateForecastSerializer(
-                    forecasts,
-                    many=True,
-                    context={"include_forecast_values": full_forecast_values},
-                ).data
+                serialize_aggregate_forecasts_many(
+                    forecasts, include_forecast_values=full_forecast_values
+                )
             )
             serialized_data["aggregations"][method]["latest"] = (
                 (
