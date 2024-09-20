@@ -2,6 +2,7 @@ from typing import Union
 
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -43,6 +44,7 @@ class PostReadSerializer(serializers.ModelSerializer):
     open_time = serializers.SerializerMethodField()
     coauthors = serializers.SerializerMethodField()
     nr_forecasters = serializers.IntegerField(source="forecasters_count")
+    slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -50,6 +52,7 @@ class PostReadSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "url_title",
+            "slug",
             "author_id",
             "author_username",
             "coauthors",
@@ -100,6 +103,9 @@ class PostReadSerializer(serializers.ModelSerializer):
             if len(open_times) == 0:
                 return None
             return min(open_times)
+
+    def get_slug(self, obj: Post):
+        return slugify(obj.url_title or obj.title)
 
 
 class NotebookWriteSerializer(serializers.ModelSerializer):
