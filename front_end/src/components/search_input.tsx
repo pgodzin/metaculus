@@ -96,17 +96,22 @@ const SearchInput: FC<Props> = ({
             onClick={handleErase}
             type="button"
             className={classNames(
-              "-mr-1.5",
+              "md:-mr-3",
               globalSearch
-                ? "text-blue-400 hover:text-gray-0 dark:text-blue-200 dark:hover:text-gray-0"
-                : ""
+                ? "text-gray-400 hover:text-gray-0 dark:text-blue-200 dark:hover:text-gray-0"
+                : "text-gray-200"
             )}
             aria-label="Clear"
           >
             <FontAwesomeIcon icon={faXmark} />
           </Button>
         )}
-        <Button variant="text" type="submit" aria-label="Search">
+        <Button
+          variant="text"
+          type="submit"
+          aria-label="Search"
+          className={classNames(globalSearch ? " hidden md:block" : "")}
+        >
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
             className={classNames(

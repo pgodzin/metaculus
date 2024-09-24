@@ -95,10 +95,10 @@ const MobileMenu: FC = () => {
         <button
           ref={toggleButtonRef}
           onClick={toggleSearch}
-          className="text-md block size-12 text-white hover:bg-blue-200-dark active:bg-blue-300-dark"
+          className={`text-md block size-12 text-white hover:bg-blue-200-dark active:bg-blue-300-dark ${isSearchOpen ? "bg-blue-700 hover:bg-blue-600" : "bg-transparent"}`}
           aria-label="Toggle search"
         >
-          <FontAwesomeIcon icon={isSearchOpen ? faXmark : faMagnifyingGlass} />
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
         <Menu>
           <MenuButton className="color-white flex size-12 flex-col items-center justify-center hover:bg-blue-200-dark active:bg-blue-300-dark lg:hidden lg:items-end lg:justify-end">
@@ -168,7 +168,7 @@ const MobileMenu: FC = () => {
           <GlobalSearch
             inputRef={searchInputRef}
             onSubmit={handleSearchSubmit}
-            isMobile={true} // Add this prop
+            isMobile={true}
           />
         </div>
       )}
