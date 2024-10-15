@@ -27,7 +27,6 @@ def streaming_response(
     user_usage,
     get_io_tokens_streaming_fn: Callable[dict[Any], tuple[int | None, int | None]],
 ):
-
     if platform == UserUsage.UsagePlatform.OpenAI:
         data["stream_options"] = {"include_usage": True}
 
@@ -47,9 +46,13 @@ def streaming_response(
                     user_usage.save()
                 yield line
 
-    return StreamingHttpResponse(
+    response = StreamingHttpResponse(
         resp_iterator(platform_response), content_type="text/event-stream"
     )
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"
+
+    return response
 
 
 def normal_response(
@@ -135,7 +138,6 @@ def make_request(
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def openai_v1_chat_completions(request):
-
     headers = {**request.headers}
     headers["Authorization"] = f"Bearer {settings.FAB_CREDITS_OPENAI_API_KEY}"
     headers.pop("Host")
@@ -190,7 +192,6 @@ def openai_v1_chat_completions(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def anthropic_v1_messages(request):
-
     headers = {**request.headers}
     headers["x-api-key"] = settings.FAB_CREDITS_ANTHROPIC_API_KEY
     headers.pop("Authorization")
